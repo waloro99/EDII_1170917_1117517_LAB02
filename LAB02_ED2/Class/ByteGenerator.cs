@@ -21,6 +21,7 @@ namespace LAB02_ED2.Class
         public static byte[] ConvertToBytes(char[] text)
         {
             return Encoding.UTF8.GetBytes(text);
+
         }
 
     }

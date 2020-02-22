@@ -7,7 +7,7 @@ using System.IO;
 
 namespace LAB02_ED2.Class
 {
-    public class Soda : IComparable, IFixedSizeText
+    public class Soda :  IComparable , IFixedSizeText
     {
         public string Name { get; set; } //id
         public string Flavor { get; set; }
@@ -30,12 +30,24 @@ namespace LAB02_ED2.Class
         public static int FixedSize { get { return 82; } }
         // |cocacola|cola|00000080|00000010|cocaola|//
 
-        using (var fs = new FileStream(path, FileMode.OpenOrCreate))
+        public string path = @"C:\Users\walte\OneDrive\Escritorio\file.txt";
+
+        public int Guardar()
         {
-            foreach (var item in Soda)
-	        {
-             fs.Write()   
-	        }
+            using (var fs = new FileStream(path,FileMode.OpenOrCreate))
+            {
+                foreach (var item in Soda)
+                {
+                    fs.Write(ByteGenerator.ConvertToBytes(item.ToFixedSizeString()), 0, Soda.FixedSize);
+                }
+            }
+
+            var buffer = new byte[Soda.FixedSize];
+            using (var fs = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                fs.Seek((root -1) * Soda.FixedSize, SeekOrigin.Begin);
+                fs.Read(buffer, 0, Soda.FixedSize);
+            }
         }
 
     }
