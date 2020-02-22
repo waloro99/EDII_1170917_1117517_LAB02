@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LAB02_ED2.Class;
+using System.IO;
 
 namespace LAB02_ED2.Class
 {
@@ -13,7 +15,7 @@ namespace LAB02_ED2.Class
         public double Price { get; set; }
         public string Made { get; set; } //its the house of create the flavor and made the final product
 
-        public string ToFixedSizeString()
+        public string ToFixedLengthString()
         {
             return $"{string.Format("{0,-20}", Name)}|{string.Format("{0,-20}", Flavor)}|" +
                 $"{Volum.ToString("00000000;-00000000")}|{Price.ToString("00000000;-00000000")}|" +
@@ -25,19 +27,19 @@ namespace LAB02_ED2.Class
             get { return FixedSize; }
         }
 
-        public static int FixedSize { get { return 82; } } // |cocacola|cola|00000080|00000010|cocaola|
+        public static int FixedSize { get { return 82; } }
+        // |cocacola|cola|00000080|00000010|cocaola|//
 
-
+        using (var fs = new FileStream(path, FileMode.OpenOrCreate))
+        {
+            foreach (var item in Soda)
+	        {
+             fs.Write()   
+	        }
+        }
 
     }
 
 
-
-    //interface all type dates have a fixed size text
-    public  interface IFixedSizeText
-    {
-        int FixedSizeText { get; set; }
-        string ToFixedLengthString();
-    }
 
 }
