@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 
 namespace LAB02_ED2.Class
 {
-    public class BTree_A
+    public class BTree_A <TKey, T> where TKey : IComparable<TKey>
     {
+
+
+
     }
 }

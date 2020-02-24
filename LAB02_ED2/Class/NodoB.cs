@@ -7,23 +7,49 @@ using System.IO;
 
 namespace LAB02_ED2.Class
 {
-    internal class NodoB<T> where T : ITextoTamañoFijo
+    public class NodoB
     {
         public const int OrdenMinimo = 5;
         public const int OrdenMaximo = 99;
         internal int Orden { get; private set; }
         internal int Posicion { get; private set; }
-        internal int Padre { get; set; }
-        internal List<int> Hijos { get; set; }
-        internal List<int> Llaves { get; set; }
-        internal List<T> Datos { get; set; }
+        public NodoB Padre { get; set; }
+        internal List<NodoB> Hijos { get; set; }
+        internal List<int> Llaves { get; private set; }
+
+
+        public NodoB(int valor)
+        {
+            Llaves = new List<int>();
+            Llaves.Add(valor);
+            Hijos = new List<NodoB>();
+        }
+
+        public int Encontrado(string valor)
+        {
+            for (int i = 0; i < Llaves.Count; i++)
+            {
+                if (Llaves[i].CompareTo(valor) == 0)
+                {
+                    return 1;
+                }
+            }
+            return -1;
+        }
+
+        public int CompareTo(object obj, int x)
+        {
+            return this.Hijos[x].Llaves[0].CompareTo(((NodoB)obj).Llaves[0]);
+        }
+
+
 
         internal int CantidadDatos
         {
             get
             {
                 int i = 0;
-                while (i < Llaves.Count && Llaves[i] != Utilidades.ApuntadorVacio)
+                while (i < Llaves.Count )
                 {
                     i++;
                 }
@@ -44,129 +70,22 @@ namespace LAB02_ED2.Class
                 return (CantidadDatos >= Orden - 1);
             }
         }
-        internal bool EsHoja
+
+
+        public void InsertarHijo(NodoB son)
         {
-            get
+            for (int x = 0; x < Hijos.Count; x++)
             {
-                bool EsHoja = true;
-                for (int i = 0; i < Hijos.Count; i++)
+                if (this.CompareTo(son, x) > 0)
                 {
-                    if (Hijos[i] != Utilidades.ApuntadorVacio)
-                    {
-                        EsHoja = false;
-                        break;
-                    }
+                    Hijos.Insert(x, son);
+                    return;
                 }
-                return EsHoja;
-            }
-        }
-
-        internal int TamañoEnTexto
-        {
-            get
-            {
-                int tamañoEnTexto = 0;
-                tamañoEnTexto += Utilidades.TextoEnteroTamaño + 1; // Tamaño del indicador de Posición
-                tamañoEnTexto += Utilidades.TextoEnteroTamaño + 1; // Tamaño apuntador al Padre
-                tamañoEnTexto += 2; // Separadores adicionales
-                tamañoEnTexto += (Utilidades.TextoEnteroTamaño + 1) * Orden; // Tamaño Hijos
-                tamañoEnTexto += 2; // Separadores adicionales
-                tamañoEnTexto += (Utilidades.TextoEnteroTamaño + 1) * (Orden - 1); // Tamaño Llaves
-                tamañoEnTexto += 2; // Separadores adicionales
-                tamañoEnTexto += (Datos[0].TamañoEnTexto + 1) * (Orden - 1); // Tamaño Datos
-                tamañoEnTexto += Utilidades.TextoNuevaLineaTamaño; // Tamaño del Enter
-                return tamañoEnTexto;
-            }
-        }
-        internal int TamañoEnBytes
-        {
-            get
-            {
-                return TamañoEnTexto * Utilidades.BinarioCaracterTamaño;
-            }
-        }
-
-        public object Utilidades { get; private set; }
-
-        private int CalcularPosicionEnDisco(int tamañoEncabezado)
-        {
-            return tamañoEncabezado + (Posicion * TamañoEnBytes);
-        }
-        private string ConvertirATextoTamañoFijo()
-        {
-            StringBuilder datosCadena = new StringBuilder();
-            datosCadena.Append(Utilidades.FormatearEntero(Posicion));
-            datosCadena.Append(Utilidades.TextoSeparador);
-            datosCadena.Append(Utilidades.FormatearEntero(Padre));
-            datosCadena.Append(Utilidades.TextoSeparador);
-            datosCadena.Append(Utilidades.TextoSeparador);
-            datosCadena.Append(Utilidades.TextoSeparador);
-            for (int i = 0; i < Hijos.Count; i++)
-            {
-                datosCadena.Append(Utilidades.FormatearEntero(Hijos[i]));
-                datosCadena.Append(Utilidades.TextoSeparador);
             }
 
-            datosCadena.Append(Utilidades.TextoSeparador);
-            datosCadena.Append(Utilidades.TextoSeparador);
-            for (int i = 0; i < Llaves.Count; i++)
-            {
-                datosCadena.Append(Utilidades.FormatearEntero(Llaves[i]));
-                datosCadena.Append(Utilidades.TextoSeparador);
-            }
-            datosCadena.Append(Utilidades.TextoSeparador);
-            datosCadena.Append(Utilidades.TextoSeparador);
-            for (int i = 0; i < Datos.Count; i++)
-            {
-                datosCadena.Append(Datos[i].ConvertirATextoTamañoFijo().Replace(Utilidades.TextoSeparador,
-               Utilidades.TextoSustitutoSeparador));
-                datosCadena.Append(Utilidades.TextoSeparador);
-            }
-            datosCadena.Append(Utilidades.TextoNuevaLinea);
-            return datosCadena.ToString();
+            Hijos.Add(son);
+            son.Padre = this;
         }
-        private byte[] ObtenerBytes()
-        {
-            byte[] datosBinarios = null;
-            datosBinarios = Utilidades.ConvertirBinarioYTexto(ConvertirATextoTamañoFijo());
-            return datosBinarios;
-        }
-        private void LimpiarNodo(IFabricaTextoTamañoFijo<T> fabrica)
-        {
-            Hijos = new List<int>();
-            for (int i = 0; i < Orden; i++)
-            {
-                Hijos.Add(Utilidades.ApuntadorVacio);
-            }
-            Llaves = new List<int>();
-            for (int i = 0; i < Orden - 1; i++)
-            {
-                Llaves.Add(Utilidades.ApuntadorVacio);
-            }
-            Datos = new List<T>();
-            for (int i = 0; i < Orden - 1; i++)
-            {
-                Datos.Add(fabrica.FabricarNulo());
-            }
-        }
-
-        internal NodoB(int orden, int posicion, int padre, IFabricaTextoTamañoFijo<T> fabrica)
-        {
-            if ((orden < OrdenMinimo) || (orden > OrdenMaximo))
-            {
-                throw new ArgumentOutOfRangeException("orden");
-            }
-            if (posicion < 0)
-            {
-                throw new ArgumentOutOfRangeException("posicion");
-            }
-            Orden = orden;
-            Posicion = posicion;
-            Padre = padre;
-            LimpiarNodo(fabrica);
-        }
-
-
 
     }
 }
